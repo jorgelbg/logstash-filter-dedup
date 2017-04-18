@@ -15,13 +15,13 @@ class LogStash::Filters::Dedup < LogStash::Filters::Base
   
   def register
     require "atomic"
-    require "thread_safe"
+    require "concurrent"
     @last_flush = Atomic.new(0) # seconds since last flush
-    @container = ThreadSafe::Cache.new { |h,k| h[k] = {} }  
+    @container = Concurrent::Map.new
   end # def register
 
   def filter(event)
-    key = event.get(@key)
+    key = event.get(@key) 
     @container[key] = event.clone
     event.cancel
   end # def filter
@@ -30,14 +30,12 @@ class LogStash::Filters::Dedup < LogStash::Filters::Base
     # Add 5 seconds to @last_flush counter
     # since this method is called every 5 seconds.
     @last_flush.update { |v| v + 5 }
-    @logger.debug("Last update has been changed to " + @last_flush.inspect)
     return unless should_flush?
-    @logger.debug("Flushing events")
+     
     result = []
     @container.each_pair do |key, event|
-      filter_matched(event)
-      result << event
-        
+      filter_matched(event)       
+      result << event        
     end
 
     @last_flush.value = 0
