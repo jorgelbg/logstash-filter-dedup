@@ -1,0 +1,2 @@
+This plugin is heavily based on the metrics plugin at https://github.com/logstash-plugins/logstash-filter-metrics
+Additional contributions by Inga Feick (inga.feick@trivago.com)
