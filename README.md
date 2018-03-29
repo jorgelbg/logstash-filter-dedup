@@ -1,6 +1,6 @@
 # Logstash Plugin
 
-[![Travis Build Status](https://travis-ci.org/logstash-plugins/logstash-filter-metrics.svg)](https://travis-ci.org/logstash-plugins/logstash-filter-metrics)
+[![Travis Build Status](https://travis-ci.org/logstash-plugins/logstash-filter-dedup.svg)](https://travis-ci.org/logstash-plugins/logstash-filter-dedup)
 
 This is a plugin for [Logstash](https://github.com/elastic/logstash).
 
