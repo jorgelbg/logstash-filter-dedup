@@ -22,7 +22,13 @@ class LogStash::Filters::Dedup < LogStash::Filters::Base
 
   def filter(event)
     key = event.get(@key)
-    @container[key] = event.clone
+    
+    if @container[key] == nil
+      @container[key] = event.clone
+    else
+      @container[key] = event.clone if event.timestamp >= @container[key].timestamp
+    end
+    
     event.cancel
   end # def filter
 

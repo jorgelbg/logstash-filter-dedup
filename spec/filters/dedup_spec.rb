@@ -43,5 +43,35 @@ describe LogStash::Filters::Dedup do
         end
       end
     end
+
+    context "when out of order events are received" do
+      context "on the first flush" do
+        subject {
+          config = {"key" => ["pk"]}
+          filter = LogStash::Filters::Dedup.new config
+          filter.register
+          # this event happens 20m in the future
+          filter.filter LogStash::Event.new({"pk" => "de_region_4711", "amount" => 5000, '@timestamp' => Time.now + 20*60})
+          filter.filter LogStash::Event.new({"pk" => "de_region_4711", "amount" => 1000})
+          filter.filter LogStash::Event.new({"pk" => "de_region_4711", "amount" => 3000})
+          filter.filter LogStash::Event.new({"pk" => "fr_region_4711", "amount" => 7000})
+
+          filter.flush
+        }
+
+        it "should return the lastest version of each key" do
+          insist { subject.length } == 2
+          
+          subject.each { |event|
+            case event.get('pk')
+            when 'de_region_4711'
+              insist { event.get('amount') } == 5000
+            when 'fr_region_4711'
+              insist { event.get('amount') } == 7000
+            end
+          }
+        end
+      end
+    end
   end
 end
