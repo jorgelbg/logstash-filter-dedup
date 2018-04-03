@@ -30,11 +30,18 @@ describe LogStash::Filters::Dedup do
         }
 
         it "should return the lastest version of each key" do
-          insist { subject.length } == 1
-          insist { subject.first.get("de_region_4711")["amount"] } == 3000
-          insist { subject.first.get("fr_region_4711")["amount"] } == 7000
-        end       
-      end    
-    end   
+          insist { subject.length } == 2
+          
+          subject.each { |event|
+            case event.get('pk')
+            when 'de_region_4711'
+              insist { event.get('amount') } == 3000
+            when 'fr_region_4711'
+              insist { event.get('amount') } == 7000
+            end
+          }
+        end
+      end
+    end
   end
 end

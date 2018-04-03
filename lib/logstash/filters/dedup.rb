@@ -21,7 +21,7 @@ class LogStash::Filters::Dedup < LogStash::Filters::Base
   end # def register
 
   def filter(event)
-    key = event.get(@key) 
+    key = event.get(@key)
     @container[key] = event.clone
     event.cancel
   end # def filter
